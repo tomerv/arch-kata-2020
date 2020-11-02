@@ -11,7 +11,7 @@ The meals are the central aspect of the business, and there is a big focus on fo
 
 ### Requirements
 
-* Each meal will be tracked from the point of its creation in the kitchen, throughout delivery, stocking the fridge, and purchase by the customer.
+* Each meal will be tracked from the point of its order (in case of an ordered meal), through creation in the kitchen and delivery, stocking the fridge, and purchase by the customer.
 * Customer can give feedback on a meal after buying it.
 * Customers can search for available meals nearby.
 * Some history of the meal should be recorded, such as where it was produced, for tracking purposes.
@@ -20,6 +20,7 @@ The meals are the central aspect of the business, and there is a big focus on fo
 
 * Inventory changes are not too frequent, since they are tied to movement of a physical meal - like an employee stocking the fridge, or a customer buying a meal.
 * Meals are generally produced and purchased in a single area. There is no interaction between the databases.
+* Peak load is expected around lunch time.
 
 ## Decision drivers
 
@@ -38,25 +39,24 @@ Meals are tracked in a central database where each meal has a unique ID.
 A meal has several attributes:
 * Type
 * Where and when it was produced
-* Status - produced, available for purchase, or purchased
+* Status - ordered, produced, available for purchase, or purchased
 * Location - kitchen, fridge, or sold to customer
-* Date of expiration
+* Date and time of expiration
 * Price
 * Additional attributes to indicate if the meal was created due to subscription or regular production order
-* User ID for reserved meals
+* User ID for reserved meals (empty for meals that aren't reserved)
 
-Any event involving the meal is updated in the system, including:
-* Creating the meal - add a new entry in the database
+Any event involving the meal is updated in the system via the Data Platform, including:
+* Creating the meal order - add a new entry in the database
 * Delivery from kitchen to fridge - update location of meal
 * Sale - update status as sold
 
 There will be several APIs to the database, for the various use-case.
-For example, the employee in charge of stocking the fridge will use an app that connects with a dedicated API.
-
-When Farmacy Foods operates in more than one metro area, each area can have a separate database.
+For example, the employee in charge of stocking the fridge uses the Refiller Applicatino that connects with a dedicated API.
 
 __Reasons:__ 
 * Simpler architecture with a single database.
+* Single enterprise wide database rather than a per fridge database.
 * Scaling for faster read-only access can be done with read-only replicas of the database.
 
 ### Consequences
